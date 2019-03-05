@@ -1,7 +1,14 @@
 \documentclass[sigconf,10pt]{acmart}
 
 \usepackage{booktabs} % For formal tables
+\usepackage{listings}
 
+\lstset{
+  basicstyle=\footnotesize,
+  frame=single,
+  tabsize=2.
+  language=C++
+}
 
 % Copyright
 %\setcopyright{none}
@@ -62,7 +69,7 @@
 
 
 \begin{abstract}
-  We do software restoration-ish and it is cool
+    Parallel patterns enable developing structured parallel programs that are maintainable, adaptive and portable while also achieving good performance on variety of parallel systems. However, there still exists a large base of \emph{legacy-parallel} code which was developed using low-level parallel libraries such as \emph{pthreads} which would benefit from structured parallelism. In this paper, we present the \emph{software restoration} methodology for rewriting legacy-parallel applications into structured parallel code using parallel patterns. We also describe software \emph{refactorings} to eliminate ad-hoc (pthread) parallelism from the legacy-parallel code, which is a first step in the proposed methodology of software restoration. Finally, we demonstrate the benefit of software restoration on a number of realistic benchmarks and use-cases in terms of gained performance, increased adaptivity, portability and maintainability.
 \end{abstract}
 
 %
