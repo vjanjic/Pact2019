@@ -22,54 +22,52 @@
 
 
 % DOI
-\acmDOI{10.475/123_4}
+%\acmDOI{10.475/123_4}
 
 % ISBN
-\acmISBN{123-4567-24-567/08/06}
+%\acmISBN{123-4567-24-567/08/06}
 
 %Conference
-\acmConference[WOODSTOCK'97]{ACM Woodstock conference}{July 1997}{El
-  Paso, Texas USA}
-\acmYear{1997}
-\copyrightyear{2016}
+\acmConference[PACT'19]{ACM International Conference on Parallel Architectures and Compilation Techniques}{September 2019}{Seattle, WA, USA}
+\acmYear{2019}
+%\copyrightyear{2016}
 
 
-\acmArticle{4}
-\acmPrice{15.00}
+%\acmArticle{4}
+%\acmPrice{15.00}
 
 % These commands are optional
 %\acmBooktitle{Transactions of the ACM Woodstock conference}
-\editor{Jennifer B. Sartor}
-\editor{Theo D'Hondt}
-\editor{Wolfgang De Meuter}
+%\editor{Jennifer B. Sartor}
+%\editor{Theo D'Hondt}
+%\editor{Wolfgang De Meuter}
 
 
 \begin{document}
-\title{Software Restoration Paper}
-\titlenote{Software Restoration}
-\subtitle{Extended Abstract}
-\subtitlenote{The full version of the author's guide is available as
-  \texttt{acmart.pdf} document}
+\title{Software Restoration for Legacy-Parallel Applications}
+%\titlenote{Software Restoration}
+%\subtitle{Extended Abstract}
+%\subtitlenote{The full version of the author's guide is available as
+%  \texttt{acmart.pdf} document}
 
 
 \author{Vladimir Janjic, Christopher Brown and Adam Barwell}
 %\authornote{Dr.~Trovato insisted his name be first.}
 %\orcid{1234-5678-9012}
 \affiliation{%
-  \institution{Institute for Clarity in Documentation}
-  \streetaddress{P.O. Box 1212}
-  \city{Dublin}
-  \state{Ohio}
-  \postcode{43017-6221}
+  \institution{School of Computer Science, University of St Andrews}
+  \city{St Andrews}
+  \state{UK}
+  %\postcode{43017-6221}
 }
-\email{trovato@corporation.com}
+\email{adb23,cmb21,vj32@st-andrews.ac.uk}
 
 % The default list of authors is too long for headers.
 \renewcommand{\shortauthors}{V. Janjic et al.}
 
 
 \begin{abstract}
-    Parallel patterns enable developing structured parallel programs that are maintainable, adaptive and portable while also achieving good performance on variety of parallel systems. However, there still exists a large base of \emph{legacy-parallel} code which was developed using low-level parallel libraries such as \emph{pthreads} which would benefit from structured parallelism. In this paper, we present the \emph{software restoration} methodology for rewriting legacy-parallel applications into structured parallel code using parallel patterns. We also describe software \emph{refactorings} to eliminate ad-hoc (pthread) parallelism from the legacy-parallel code, which is a first step in the proposed methodology of software restoration. Finally, we demonstrate the benefit of software restoration on a number of realistic benchmarks and use-cases in terms of gained performance, increased adaptivity, portability and maintainability.
+    \emph{Parallel patterns} enable developing structured parallel programs that are maintainable, adaptive and portable while also achieving good performance on a variety of parallel systems. However, there still exists a large base of \emph{legacy-parallel code} which was developed using low-level parallel libraries such as \emph{pthreads} which would benefit from structured parallelism. In this paper, we present the \emph{software restoration} methodology for rewriting legacy-parallel applications into structured parallel code using parallel patterns. We also describe software \emph{refactorings} to eliminate ad-hoc (pthread) parallelism from the legacy-parallel code, which is a first step in the proposed methodology of software restoration. Finally, we demonstrate the benefit of software restoration on a number of realistic benchmarks and use-cases in terms of gained performance, increased adaptivity, portability and maintainability.
 \end{abstract}
 
 %
@@ -108,7 +106,7 @@
 \ccsdesc[100]{Networks~Network reliability}
 
 
-\keywords{ACM proceedings, \LaTeX, text tagging}
+\keywords{Parallel patterns, refactoring, code analysis}
 
 
 \maketitle

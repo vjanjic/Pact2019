@@ -1,5 +1,6 @@
 \section{Introduction}
-Parallel patterns are a well established high-level parallel programming model for producing portable, maintainable, adaptive and efficient parallel code. They have been endorsed by some of the biggest IT companies, such as Intel and Microsoft, who have developed their own parallel pattern libraries (Intel TBB, Microsoft PPL etc.) A standard way of using these libraries is to start with the sequential code, identify in it the portions of the code that are amenable to parallelisation together with the exact parallel pattern to be applied, and then instantiating the identified pattern at the identified location in the code, after possibly restructuring the code to accommodate for parallelism. Sequential code gives the cleanest starting point for introduction of parallel patterns. There exists, however, a large base of \emph{legacy} code that was parallelised using lower-level, mostly ad-hoc parallelisation methods and libraries, such as \lstinline{pThreads}. This code is usually tailored to a specific parallelisation, all but preventing exploration of alternative parallelisation methods, and optimised for a specific system architecture. All this significantly reduces maintainability and portability of the code. %with highly-specific and tuned data structures which prevent alternative (possibly more efficient parallelisations) or portability to different platforms. Also, code maintainance requires intricate knowledge about the system architecture and various low-level underlying mechanisms such as thread creation, synchronisation and scheduling. 
+
+Parallel patterns are a well established high-level parallel programming model for producing portable, maintainable, adaptive and efficient parallel code. They have been endorsed by some of the biggest IT companies, such as Intel and Microsoft, who have developed their own parallel pattern libraries (Intel TBB, Microsoft PPL etc.) A standard way of using these libraries is to start with the sequential code, identify in it the portions of the code that are amenable to parallelisation together with the exact parallel pattern to be applied, and then instantiating the identified pattern at the identified location in the code, after possibly restructuring the code to accommodate for parallelism. Sequential code gives the cleanest starting point for introduction of parallel patterns. There exists, however, a large base of \emph{legacy} code that was parallelised using lower-level, mostly ad-hoc parallelisation methods and libraries, such as \emph{pthreads}. This code is usually tailored to a specific parallelisation, all but preventing exploration of alternative parallelisation methods, and optimised for a specific system architecture. All this significantly reduces maintainability and portability of the code. %with highly-specific and tuned data structures which prevent alternative (possibly more efficient parallelisations) or portability to different platforms. Also, code maintainance requires intricate knowledge about the system architecture and various low-level underlying mechanisms such as thread creation, synchronisation and scheduling. 
 Introducing pattern parallelism into legacy-parallel code would significantly improve the code qulaity, but this is usually a daunting task due to various factors, such as high degree of specialisation and custom tuning of the legacy code, incompability between lstinline{pThreads} and parallel pattern libraries, usage of very specific, custom-built data structures tailored to a specific parallelism model etc.
   
 This paper presents a \emph{software restoration} methodology for restructuring and refactoring legacy-parallel code. The overall process starts with an ad-hoc paralell code written using \lstinline{pThreads} or similar low-level library and, in the end, produces equivalent structured, pattern-based parallel programs. Our overall goal is to provide semi-automatic mechanisms based on software refactoring to guide the programmer through all stages of the process, suggesting source-to-source transformations and then, based on the programmer's input, automatically applying them. In this paper, we focus on the first stage of the methodlogy, namely \emph{parallelism elimination}, presenting refactorings to eliminate parallelism from legacy-parallel code, effectively transforming an application into the equivalent sequential version, with possibly some necessary concurrency still remaining in the code. We then demonstrate how manual application of the remaining steps of the methodolgy can produce semantically equivalent code that is comparable to the original legacy-parallel version in terms of execution speed, while significantly increasing portability, adaptivity and maintainability.
@@ -12,41 +13,48 @@ This paper, thus, makes the following specific research contributions:
 \end{itemize}
 
 \section{Background}
-Legacy-parallel code, written in ad-hoc way using low level parallel libraries such as \emph{pthreads}, is still very much present in various software repositories and projects. This code was usually developed by parallelism experts before the libraries and programming models for structured parallelisation became popular. It is usually tailored to one specific target machine and architecture, and might use highly-customised parallelisation and associated data structures. This makes it very hard to maintain that code, an increasing important feature in software engineering, or to port it to new architectures. In an ideal case, every legacy-parallel application could be transformed into structured parallel programs, written using high-level parallel programming libraries. However, for this to be possible, it is necessary that a well-defined underlying pattern of parallelism actually exists in the code, which can be exploited by instances of patterns. This is not always the case. However, in substantial number of cases, the parallelism in the application is an instance of one of the common patterns, such as farm, pipeline, workpool or stencil. In these cases, it should be possible, automatically or semi-automatically, to \emph{replace} unstructured parallelism with its structured (patterned) equivalent.   
+Legacy-parallel code, written in ad-hoc way using low level parallel libraries such as \emph{pthreads}, is still very much present in various software repositories and projects. This code was usually developed by parallelism experts before the libraries and programming models for structured parallelisation became popular. It is usually tailored to one specific target machine and architecture, and might use highly-customised parallelisation and associated data structures. This makes it very hard to maintain that code, an increasing important feature in software engineering, or to port it to new architectures. It would be ideal if we could transform every legacy-parallel application into a structured parallel programs, written using high-level parallel programming libraries. However, for this to be possible, it is necessary that a well-defined underlying pattern of parallelism actually exists in the code, which can be exploited by instances of patterns. This is not always the case. However, in substantial number of cases, the parallelism in the application is an instance of one of the common patterns, such as farm, pipeline, workpool or stencil. In these cases, it should be possible, automatically or semi-automatically, to \emph{replace} unstructured parallelism with its structured (patterned) equivalent.   
 
-\subsection{Parallel Patterns (1/3 page)}
-\begin{itemize}
-\item What are parallel patterns
-\item Some common patterns
-  \item Benefits of using patterns
-  \item Relevant pattern libraries (Open MP, Intel TBB...)
-\end{itemize}
+\subsubsection*{Parallel Patterns}
+%\begin{itemize}
+%\item What are parallel patterns
+%\item Some common patterns
+%  \item Benefits of using patterns
+%  \item Relevant pattern libraries (Open MP, Intel TBB...)
+%\end{itemize}
 
-In this paper, we take an approach where parallelism can be described using a high-level abstraction, known as a parallel pattern. A parallel pattern implements a common parallel behaviour, while abstracting over its implementation. 
-In this paper, we restrict ourselves to two classical parallel patterns, which we believe to be the most common. Note that the technique described in this paper can be further generalised to include the full tractable set of parallel patterns.
+
+
+\noindent
+\emph{Parallel patterns} are a high-level abstraction for representing classes of computations that are similar in terms of their parallel structure, but different in terms of problem-specific operations. A typical example of a parallel pattern is a \emph{parallel map}, where the same operation is applied to a set of independent inputs in parallel. Regardless of whether the actual operation is, for example, multiplying a matrix by a vector, processing a pixel of an image or XX, the parallel structure of the computation will be the same. Parallel Patterns are typically implemented as library functions which handle creation, synchronisation and communication between the parallel threads, while the problem-specific (often sequential) computations are provided as the pattern parameters. In this paper, we restrict ourselves to two classical parallel patterns, which we believe to be the most common. Note that the technique described in this paper can be further generalised to include the full tractable set of parallel patterns.
 \begin{itemize}
     \item The farm pattern models a data parallel computation, where a single computational worker, $f$, is applied to a set of independent inputs, $x_{1}, ..., x_{n}$. The parallelism arises from applying the worker, $f$, to different input elements at the same time in parallel. 
     \item The pipeline pattern models a parallel pipeline. Here, a sequence of functions, $f_{1}, f_{2}, ..., f_{m}$ are applied, to a stream on independent inputs, $x_{1}, ..., x_{n}$. The output of $f_{i}$ becomes the input to $f_{i+1}$, so that the parallelism arises from executing $f_{i+1}(f_{i}(...f_{1}(x_{k})...))$ in parallel with $f_{i}(f_{i-1}(...f_{1}(x_{k+1})...))$.
 \end{itemize}
-\subsection{Refactoring (1/3 page)}
-\begin{itemize}
-\item What is refactoring
-\item Refactoring for parallelism, specifically for patterns
-\end{itemize}
 
-\subsection{Static and Dynamic Analysis}
+The benefits of using parallel patterns lie in clear separation between sequential and parallel parts of the code and high-level description of the underlying parallelism, which makes the patterned applications much easier to maintain, change and adapt to new architectures. For these reasons, they have been endorsed by most of the top IT companies, who have their own pattern libraries, such as Microsoft PPL~\cite{ppl} and Intel Thread Building Blocks~\cite{tbb}. In addition to that, there are also many popular open-source pattern libraries, such as OpenMP~\cite{openmp} and FastFlow~\cite{openmp}.
+
+\subsubsection*{Software Refactoring}
+
+\noindent
+\emph{Software refactoring} is the process of changing the structure of a program while preserving
+its functional semantics in order, for example, to increase code quality, programming
+productivity and code reuse. In our case, refactorings are source-to-source transformations of the code that are performed \emph{semi-automatically}, under the programmers guidance and possibly with his input. In our previous work, we pioneered refactoring to introduce parallelism~\cite{rpl}, where sequential code is transformed to introduce instances of parallel patterns. We have shown that this can lead to excellent speedups of the resulting code.
+
+\subsubsection*{Static and Dynamic Analysis}
 \begin{itemize}
 \item Mostly about analysis for pattern discovery, maybe we can lift from Adam's thesis
 \end{itemize}
 
 \section{Software Restoration}
-Three key technologies that software restoration is based are parallel patterns, software refactoring and code analysis, descrbied in Section~\ref{sec:background}. In the software restoration, code g\noindent
+\noindent
 \emph{Software restoration} is a methodology based on refactoring and code analysis that aims to:
 \begin{itemize}
-\item discover instances of common patterns in legacy-parallel code;
-\item elimioes through different phases, from the original code, via \emph{clean} sequential code to structured parallel code.
+\item \emph{discover} the instances of common patterns in legacy-parallel code;
+\item \emph{eliminate} the \emph{undesirable} parallelism from the same code;
+\item \emph{replace} the removed parallelism with instances of the parallel patterns;
 \end{itemize}
-  The overall process is depicted in Figure~\ref{fig:SoftRest} and it involves the following steps: 
+The end product of software restoration is a structured parallel applications, written using parallel patterns. During the process of the restoration, the original legacy-parallel code goes through different transformation phases, as depicted in the Figure~\ref{fig:SoftRest}. This involves the following steps: 
 
 \begin{figure*}
 \centering
