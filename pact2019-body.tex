@@ -54,7 +54,7 @@ productivity and code reuse. In our case, refactorings are source-to-source tran
 \item \emph{eliminate} the \emph{undesirable} parallelism from the same code;
 \item \emph{replace} the removed parallelism with instances of the parallel patterns;
 \end{itemize}
-The end product of software restoration is a structured parallel applications, written using parallel patterns. During the process of the restoration, the original legacy-parallel code goes through different transformation phases, as depicted in the Figure~\ref{fig:SoftRest}. This involves the following steps: 
+The software restoration process takes as an input a legacy-parallel code, for which we currently assume it is written using the \emph{pthreads} library. It then applies a series of incremental program analysis and transformation steps, as depcited in the Figure~\ref{fig:SoftRest}, with the final result being an application based on parallel patterns that is semantically equivalent to the original legacy-parallel version. The software restoration involves the following steps:
 
 \begin{figure*}
 \centering
@@ -64,7 +64,46 @@ The end product of software restoration is a structured parallel applications, w
 \end{figure*}
 
 \begin{itemize}
-\item \emph{Initial Pattern Discovery.} We start with a legacy-parallel code, written using one of the low level threading libraries. For the purposes of this paper, we will assume that the code is written using the \emph{pthreads} library, but the principle is the same with the similar libraries such as \emph{cilk} or \emph{MPI}. The initial step in software restoration is to do \emph{initial pattern discovery} to discover i) parts of the threaded code that correspond to instances of parallel patterns; and, ii) parts of the threaded code that represent concurrent computations. It is necessary to know which threaded code is concurrent for the next step, as sequentialising these portions of code can lead to deadlocks. A typical example of this is spawning a background thread to deal with signals that the program receives - inlining this thread into the main flow of the code would create a deadlock. Pattern discovery is required to, firstly, mark the parts of the code that are of interest to restoration and, secondly, to drive the kind of transformations that are applied in the further steps.
+\item \emph{Initial Pattern Discovery.} The initial program analysis step, applied to a legacy-parallel code, discovers i) parts of the threaded code that correspond to instances of parallel patterns; and, ii) parts of the threaded code that represent concurrent computations. Concurrent computations are, for example, separate threads that process the signals received by the user. It is necessary to know which threaded code is concurrent, as sequentialising these portions of code in the next step of the methodlogy can lead to deadlocks. Initial pattern discovery also annotates the legacy-parallel code, denoting the composition of patterns discovered, as well as the components of the pattern. In the Matrix Multiplication example, the code of which is shown below, this phase discovers the \emph{farm} parallel pattern, with the XX being the worker component (function).
+
+\begin{lstlisting}
+static void * thread_func (void* arg)
+{
+  data *input = (data *)arg;
+  for (int i = input->start; i < input->end; i++) {
+	  multiply_row_by_matrix(a, i, b, res);
+  }
+
+  return (void *)0;
+}
+
+
+void threads_create()
+{
+  pthread_attr_t attr;
+  int status;
+  int count=0;
+  
+  in = (data *) malloc (sizeof(data) * tc);
+  thrs = (pthread_t *) malloc (sizeof(pthread_t) * tc);
+  
+  status = pthread_attr_init(&attr);
+  if (status != 0)
+    // err_abort (status, "Init attributes object");
+    std::cout << "Init attributes object" << std::endl;
+
+    in[tid].start = count;
+    in[thread_ind].row_end = count + chunk;
+    count += chunk;
+
+    status = pthread_create(&threads[tid], &attr, &thread_func, &in[tid]);
+    if (status != 0)
+      handle_error("Creating thread failed!");
+
+  }
+
+\end{lstlisting}
+  
 
 \item \emph{Parallelism Removal.} The first code transformation phase is \emph{parallelism removal}. Here, using software refactoring, we remove parts of the threaded code  that are safe to remove (that is, all parallel parts except the parts identified as concurrent computations during pattern discovery), and replace them with their sequential equivalents. For example, if a \emph{farm} pattern is applied to an operation over an input array, we replace it with a sequential loop that iterates the operation over the input array. In this way we get the sequential application with the same semantics as the original parallel one. The refactorings to remove \emph{farm} and \emph{pipeline} parallelism are described in Section~\ref{sec:parRemoval}.
 
