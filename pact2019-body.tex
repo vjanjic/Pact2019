@@ -54,7 +54,7 @@ productivity and code reuse. In our case, refactorings are source-to-source tran
 \item \emph{eliminate} the \emph{undesirable} parallelism from the same code;
 \item \emph{replace} the removed parallelism with instances of the parallel patterns;
 \end{itemize}
-The software restoration process takes as an input a legacy-parallel code, for which we currently assume it is written using the \emph{pthreads} library. It then applies a series of incremental program analysis and transformation steps, as depcited in the Figure~\ref{fig:SoftRest}, with the final result being an application based on parallel patterns that is semantically equivalent to the original legacy-parallel version. The software restoration involves the following steps:
+The software restoration process takes as an input a legacy-parallel code, for which we currently assume it is written using the \emph{pthreads} library. It then applies a series of incremental program analysis and transformation steps, as depcited in the Figure~\ref{fig:SoftRest}, with the final result being an application based on parallel patterns that is semantically equivalent to the original legacy-parallel version. In the discussion below, we will use Matrix Multiplication as a running example for the code transformations that are undertaken. The software restoration involves the following steps:
 
 \begin{figure*}
 \centering
@@ -64,7 +64,7 @@ The software restoration process takes as an input a legacy-parallel code, for w
 \end{figure*}
 
 \begin{itemize}
-\item \emph{Initial Pattern Discovery.} The initial program analysis step, applied to a legacy-parallel code, discovers i) parts of the threaded code that correspond to instances of parallel patterns; and, ii) parts of the threaded code that represent concurrent computations. Concurrent computations are, for example, separate threads that process the signals received by the user. It is necessary to know which threaded code is concurrent, as sequentialising these portions of code in the next step of the methodlogy can lead to deadlocks. Initial pattern discovery also annotates the legacy-parallel code, denoting the composition of patterns discovered, as well as the components of the pattern. In the Matrix Multiplication example, the code of which is shown below, this phase discovers the \emph{farm} parallel pattern, with the XX being the worker component (function).
+\item \emph{Initial Pattern Discovery.} The initial program analysis step, applied to a legacy-parallel code, discovers i) parts of the threaded code that correspond to instances of parallel patterns; and, ii) parts of the threaded code that represent concurrent computations. Concurrent computations are, for example, separate threads that process the signals received by the user. It is necessary to know which threaded code is concurrent, as sequentialising these portions of code in the next step of the methodlogy can lead to deadlocks. Initial pattern discovery also annotates the legacy-parallel code, denoting the composition of patterns discovered, as well as the components of the pattern. In the Matrix Multiplication example, the legacy-code of which is shown below, this phase discovers the \emph{farm} parallel pattern, with the \lstlinline{thread_func} being the worker component (function).
 
 \begin{lstlisting}
 static void * thread_func (void* arg)
@@ -521,6 +521,7 @@ for(x1 = y1, x2 = z1; x1 < y2 || x2 < z2; x1++, x2++) {...}
 
 
 \section{Evaluation}
+
 
 \section{Related Work}
 
