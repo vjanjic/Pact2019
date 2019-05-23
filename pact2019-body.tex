@@ -1,3 +1,19 @@
+\section{To-Do List}
+
+\begin{itemize}
+\item General: Rewrite the paper to focus less on methodology and more on transformations and refactoring
+\item Add a section about dynamic trace-based pattern discovery that we do
+\item Shorten out the Software Restoration section
+\item Have two section on refactoring:
+  \begin{itemize}
+  \item One with ``lower-level'' refactorings, eliminating \lstinline{pthread_create}, locks etc.
+    \item One with ``high-level'' refactorings to eliminate patterns
+    \end{itemize}
+  \item Look at the PARSEC benchmark suite and see what applications we can refactor
+  \item Look at the SE metrics and decide which ones to use in evaluation
+    \item Evaluate the technique with chosen metrics and chosen use cases
+ \end{itemize}
+
 \section{Introduction}
 
 Parallel patterns are a well established high-level parallel programming model for producing portable, maintainable, adaptive and efficient parallel code. They have been endorsed by some of the biggest IT companies, such as Intel and Microsoft, who have developed their own parallel pattern libraries (Intel TBB, Microsoft PPL etc.) A standard way of using these libraries is to start with the sequential code, identify in it the portions of the code that are amenable to parallelisation together with the exact parallel pattern to be applied, and then instantiating the identified pattern at the identified location in the code, after possibly restructuring the code to accommodate for parallelism. Sequential code gives the cleanest starting point for introduction of parallel patterns. There exists, however, a large base of \emph{legacy} code that was parallelised using lower-level, mostly ad-hoc parallelisation methods and libraries, such as \emph{pthreads}. This code is usually tailored to a specific parallelisation, all but preventing exploration of alternative parallelisation methods, and optimised for a specific system architecture. All this significantly reduces maintainability and portability of the code. %with highly-specific and tuned data structures which prevent alternative (possibly more efficient parallelisations) or portability to different platforms. Also, code maintainance requires intricate knowledge about the system architecture and various low-level underlying mechanisms such as thread creation, synchronisation and scheduling. 
